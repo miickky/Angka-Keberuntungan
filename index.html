@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Temukan Angka Keberuntungan Anda</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Poppins", sans-serif;
+    background: linear-gradient(135deg, #0011ff, #000000);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-align: center;
+    overflow: hidden;
+  }
+  h1 {
+    font-size: 1.8rem;
+    margin-bottom: 1.2rem;
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+  }
+  .card {
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(10px);
+    border-radius: 18px;
+    padding: 2rem 1.5rem;
+    width: 90%;
+    max-width: 340px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    animation: fadeIn 0.6s ease;
+  }
+  input {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    background: #eeff00;
+    color: #333;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  button:hover { background: #fff06a; transform: scale(1.05); }
+  #hasil { margin-top: 20px; font-size: 1.1rem; }
+  .shine {
+    background: linear-gradient(90deg, #fff, #ffe06b, #fff);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shine 2s linear infinite;
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+  @keyframes shine { to { background-position: 200% center; } }
+  .stars {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    overflow: hidden;
+    z-index: -1;
+  }
+  .stars span {
+    position: absolute;
+    width: 2px; height: 2px;
+    background: white;
+    animation: twinkle 3s infinite ease-in-out;
+  }
+  @keyframes twinkle {
+    0%,100% {opacity:0.2;}
+    50% {opacity:1;}
+  }
+</style>
+</head>
+<body>
+
+<div class="stars"></div>
+
+<h1>🔮 Angka Keberuntungan 🔮</h1>
+<div class="card">
+  <input id="tanggal" placeholder="(contoh: 23-10)">
+  <button onclick="lihatAngka()">Lihat Angka</button>
+  <div id="hasil"></div>
+</div>
+
+<script>
+// efek bintang lembut
+for (let i=0; i<12; i++) {
+  const s=document.createElement("span");
+  s.style.left=Math.random()*100+"%";
+  s.style.top=Math.random()*100+"%";
+  s.style.animationDelay=Math.random()*3+"s";
+  document.querySelector(".stars").appendChild(s);
+}
+
+// nama bulan
+const bulanNama={
+  "01":"Januari","02":"Februari","03":"Maret","04":"April","05":"Mei","06":"Juni",
+  "07":"Juli","08":"Agustus","09":"September","10":"Oktober","11":"November","12":"Desember"
+};
+
+// === angka keberuntungan tetap ===
+// (tanpa 0, tanpa angka kembar, stabil di semua perangkat)
+const angkaKeberuntungan={};
+const angkaUnik=[];
+
+// fungsi bantu untuk membuat angka tanpa 0 & tanpa kembar
+function buatAngkaUnik(){
+  const angka="123456789".split("");
+  while(true){
+    const a1=angka[Math.floor(Math.random()*9)];
+    const a2=angka[Math.floor(Math.random()*9)];
+    const a3=angka[Math.floor(Math.random()*9)];
+    const a4=angka[Math.floor(Math.random()*9)];
+    const hasil=a1+a2+a3+a4;
+    if(new Set(hasil).size===4 && !angkaUnik.includes(hasil)){
+      angkaUnik.push(hasil);
+      return hasil;
+    }
+  }
+}
+
+// isi semua tanggal dari 01-01 s.d. 31-12 (pakai angka tetap hasil awal)
+let i=0;
+const hariPerBulan={"01":31,"02":29,"03":31,"04":30,"05":31,"06":30,"07":31,"08":31,"09":30,"10":31,"11":30,"12":31};
+for(const bulan in hariPerBulan){
+  for(let h=1;h<=hariPerBulan[bulan];h++){
+    const key=`${String(h).padStart(2,"0")}-${bulan}`;
+    angkaKeberuntungan[key]=buatAngkaUnik();
+  }
+}
+
+// tampilkan hasil
+function lihatAngka(){
+  const val=document.getElementById("tanggal").value.trim();
+  const hasil=document.getElementById("hasil");
+  if(angkaKeberuntungan[val]){
+    const [tgl,bln]=val.split("-");
+    hasil.innerHTML=`
+      <p>📅 <b>Tanggal:</b> ${tgl}</p>
+      <p>🗓️ <b>Bulan:</b> ${bulanNama[bln]||"-"}</p>
+      <p>💎 Angka Keberuntungan:<br><span class="shine">${angkaKeberuntungan[val]}</span></p>
+    `;
+  }else{
+    hasil.innerHTML=`<p style="color:#ffaaaa">❌ Format salah / tanggal tidak tersedia<br>(contoh: 01-01)</p>`;
+  }
+}
+</script>
+
+</body>
+</html>
